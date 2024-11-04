@@ -4,20 +4,6 @@
 
         <ul v-for="device in devices" :key="device.id" class="device-item">
             <li class="device-item-name">
-                <!-- <template v-if="editingElement?.type === 'device' && editingElement.id === device.id">
-                    <input 
-                        :ref="'deviceInput-' + device.id" 
-                        v-model="device.name" 
-                        @blur="updateDevice(device.id)"
-                        @keyup.enter="updateDevice(device.id)" 
-                        @keyup.esc="stopEditing" 
-                />
-                </template>
-                <template v-else>
-                    <span>{{ device.name }}</span>
-                    <span class="edit-icon" @click="startEditing('device', device.id)">✏️</span>
-                    <span class="delete-icon" @click="deleteItem('device', device.id)">🗑️</span>
-                </template> -->
                 <ListItem 
                     type="device" 
                     :item="device" 
@@ -29,20 +15,6 @@
                 />
                 <ul v-for="node in device.nodes" :key="node.id" class="node-item">
                     <li>
-                        <!-- <template
-                            v-if="editingElement?.type === 'node' && editingElement.deviceId === device.id && editingElement.id === node.id">
-                            <input 
-                                :ref="'nodeInput-' + node.id" 
-                                v-model="node.name"
-                                @blur="updateNode(device.id, node.id)" 
-                                @keyup.enter="updateNode(device.id, node.id)" 
-                                @keyup.esc="stopEditing"/>
-                        </template>
-                        <template v-else>
-                            <span>{{ node.name }} {{ node.id }}</span>
-                            <span class="edit-icon" @click="startEditing('node', device.id, node.id)">✏️</span>
-                            <span class="delete-icon" @click="deleteItem('node', device.id, node.id)">🗑️</span>
-                        </template> -->
                         <ListItem 
                             type="node" 
                             :item="node" 
