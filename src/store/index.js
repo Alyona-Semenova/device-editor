@@ -85,37 +85,37 @@ export default new Vuex.Store({
      */
     REMOVE_DEVICE(state, deviceId) {
       Vue.delete(state.devices, deviceId);
-      console.log(`Устройство с ID ${deviceId} удалено.`);
+      console.info(`Устройство с ID ${deviceId} удалено.`);
     },
 
     /**
      * Remove node from device
      * @param {*} state 
-     * @param {*} node - {deviceId, nodeId}
+     * @param {*} node - {parentId, id}
      */
     REMOVE_NODE(state, node) {
-      Vue.delete(state.devices[node.deviceId].nodes, node.nodeId); 
-      console.log(`Узел с ID ${node.nodeId} удален.`)
+      Vue.delete(state.devices[node.parentId].nodes, node.id); 
+      console.info(`Узел с ID ${node.id} удален.`)
     },
 
     /**
      * Update device
      * @param {*} state 
-     * @param {*} device - {id, name, nodes}
+     * @param {*} device 
      */
     UPDATE_DEVICE(state, device) {
       state.devices[device.id] = device;
-      console.log(`Устройство с ID ${device.id} обновлено.`)
+      console.info(`Устройство с ID ${device.id} обновлено.`)
     },
 
     /**
      * Update node
      * @param {*} state 
-     * @param {*} node - {deviceId, nodeId, newNode}
+     * @param {*} node
      */
     UPDATE_NODE(state, node) {
-      state.devices[node.deviceId].nodes[node.nodeId] = node;
-      console.log(`Узел с ID ${node.nodeId} обновлен.`)
+      state.devices[node.deviceId].nodes[node.id] = node;
+      console.info(`Узел с ID ${node.id} обновлен.`)
     },
 
   },

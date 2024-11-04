@@ -4,7 +4,7 @@
 
         <ul v-for="device in devices" :key="device.id" class="device-item">
             <li class="device-item-name">
-                <template v-if="editingElement?.type === 'device' && editingElement.id === device.id">
+                <!-- <template v-if="editingElement?.type === 'device' && editingElement.id === device.id">
                     <input 
                         :ref="'deviceInput-' + device.id" 
                         v-model="device.name" 
@@ -17,10 +17,19 @@
                     <span>{{ device.name }}</span>
                     <span class="edit-icon" @click="startEditing('device', device.id)">✏️</span>
                     <span class="delete-icon" @click="deleteItem('device', device.id)">🗑️</span>
-                </template>
+                </template> -->
+                <ListItem 
+                    type="device" 
+                    :item="device" 
+                    :editingElement="editingElement"
+                    @updateItem="updateItem"
+                    @startEditing="startEditing"
+                    @stopEditing="stopEditing"
+                    @deleteItem="deleteItem"
+                />
                 <ul v-for="node in device.nodes" :key="node.id" class="node-item">
                     <li>
-                        <template
+                        <!-- <template
                             v-if="editingElement?.type === 'node' && editingElement.deviceId === device.id && editingElement.id === node.id">
                             <input 
                                 :ref="'nodeInput-' + node.id" 
@@ -33,7 +42,17 @@
                             <span>{{ node.name }} {{ node.id }}</span>
                             <span class="edit-icon" @click="startEditing('node', device.id, node.id)">✏️</span>
                             <span class="delete-icon" @click="deleteItem('node', device.id, node.id)">🗑️</span>
-                        </template>
+                        </template> -->
+                        <ListItem 
+                            type="node" 
+                            :item="node" 
+                            :editingElement="editingElement"
+                            @updateItem="updateItem"
+                            :parentId="device.id"
+                            @startEditing="startEditing"
+                            @stopEditing="stopEditing"
+                            @deleteItem="deleteItem"
+                        />
                     </li>
                 </ul>
                 <span class="add-item" @click="addNode(device.id)"><i>+ добавить узел</i></span>
@@ -45,14 +64,21 @@
 </template>
 
 <script>
+import ListItem from '@/components/ListItem.vue';
+
 export default {
     name: 'DevicesList',
+
+    components: {
+        ListItem,
+    },
 
     data() {
         return {
             editingElement: null,
         };
     },
+
 
     computed: {
         devices() {
@@ -86,27 +112,28 @@ export default {
             let newNode = {
                 id: lastNodeId ? lastNodeId + 1 : 1,
                 name: 'Новый узел',
+                deviceId: deviceId,
             };
 
             this.$store.commit('ADD_NODE', { deviceId, newNode });
         },
 
         /**
-         * update device name
-         * @param id 
-         */
-        updateDevice(id) {
-            this.$store.commit('UPDATE_DEVICE', { id, name: this.devices[id].name });
-            this.stopEditing();
-        },
-
-        /**
-         * update node name
+         * update item name
+         * @param type 
          * @param deviceId 
          * @param nodeId 
+         * @param name 
          */
-        updateNode(deviceId, nodeId) {
-            this.$store.commit('UPDATE_NODE', { deviceId, nodeId, name: this.devices[deviceId].nodes[nodeId].name });
+        updateItem(type, id, newName, parentId) {
+            if (type === 'device') {
+                let updatedDevice = {...this.devices[id], name: newName }
+                this.$store.commit('UPDATE_DEVICE', updatedDevice);
+            } else if (type === 'node' && parentId) {
+                let updatedNode = {...this.devices[parentId].nodes[id], name: newName }
+                this.$store.commit('UPDATE_NODE', updatedNode);
+            }
+
             this.stopEditing();
         },
 
@@ -116,11 +143,11 @@ export default {
          * @param deviceId 
          * @param nodeId 
          */
-        deleteItem(type, deviceId, nodeId = null) {
+        deleteItem(type, id, parentId) {
             if (type === 'device') {
-                this.$store.commit('REMOVE_DEVICE', deviceId);
+                this.$store.commit('REMOVE_DEVICE', id);
             } else if (type === 'node') {
-                this.$store.commit('REMOVE_NODE', { deviceId, nodeId });
+                this.$store.commit('REMOVE_NODE', { parentId, id });
             }
         },
 
@@ -130,20 +157,8 @@ export default {
          * @param deviceId 
          * @param nodeId 
          */
-        startEditing(type, deviceId, nodeId = null) {
-            this.editingElement = { type, id: nodeId ? nodeId : deviceId, deviceId };
-
-            // auto focus & select on input
-            this.$nextTick(() => {
-                if (type === 'device') {
-                    this.$refs['deviceInput-' + deviceId][0].focus();
-                    this.$refs['deviceInput-' + deviceId][0].select();
-                } else if (type === 'node') {
-                    this.$refs['nodeInput-' + nodeId][0].focus();
-                    this.$refs['nodeInput-' + nodeId][0].select();
-
-                }
-            });
+        startEditing(type, id, parentId) {
+            this.editingElement = { type, id, parentId};
         },
 
         /**
@@ -163,16 +178,5 @@ export default {
         color: gray;
         font-size: 10px;
     }
-
-    .edit-icon {
-        cursor: pointer;
-        margin-left: 5px;
-    }
-
-    .delete-icon {
-        cursor: pointer;
-        margin-left: 5px;        
-    }
-
 }
 </style>
